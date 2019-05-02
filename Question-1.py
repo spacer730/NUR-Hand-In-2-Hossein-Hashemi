@@ -7,12 +7,12 @@ def MWC(x):
     return x
     
 def XOR_shift(x):
-   a1, a2, a3 = np.uint64(21), np.uint64(35), np.uint64(4)
-   x = np.uint64(x)
-   x = x ^ (x >> a1)
-   x = x ^ (x << a2)
-   x = x ^ (x >> a3)
-   return x
+    a1, a2, a3 = np.uint64(21), np.uint64(35), np.uint64(4)
+    x = np.uint64(x)
+    x = x ^ (x >> a1)
+    x = x ^ (x << a2)
+    x = x ^ (x >> a3)
+    return x
 
 def RNG(length, norm = True):
     global seed
@@ -42,28 +42,31 @@ def intfunc(x, alpha):
     return np.exp(-alpha*(x**2)) + np.exp(-alpha/(x**2))/(x**2)
 
 def extmidpoint(func, edges, n, **kwargs):
-   h = (edges[1]-edges[0])/n
-   integration = 0
+    h = (edges[1]-edges[0])/n
+    integration = 0
 
-   for i in range(n):
-       integration += func(edges[0]+(i+0.5)*h, **kwargs)
-   integration = h*integration
+    for i in range(n):
+        integration += func(edges[0]+(i+0.5)*h, **kwargs)
+    integration = h*integration
 
-   return integration
+    return integration
 
 def extmidpointromberg(func, edges, n, N, **kwargs):
-   s = [[] for i in range(N)]
-   s[0].append(extmidpoint(func, edges, n, **kwargs))
+    s = [[] for i in range(N)]
+    s[0].append(extmidpoint(func, edges, n, **kwargs))
 
-   for i in range (1,N):
-      n = 2*n
-      s[0].append(extmidpoint(func, edges, n, **kwargs))
+    for i in range (1,N):
+        n = 2*n
+        s[0].append(extmidpoint(func, edges, n, **kwargs))
    
-   for j in range(N-1):
-      for i in range(N-(j+1)):
-         s[j+1].append(s[j][i+1]+(s[j][i+1]-s[j][i])/(-1+4**(j+1)))
+    for j in range(N-1):
+        for i in range(N-(j+1)):
+            s[j+1].append(s[j][i+1]+(s[j][i+1]-s[j][i])/(-1+4**(j+1)))
 
-   return s[-1][0]
+    return s[-1][0]
+
+def KS_test(dataset1, dataset2):
+    (((dataset1[i]-dataset2[i])**2))**0.5
 
 if __name__ == '__main__':
     seed = 67
@@ -112,8 +115,32 @@ if __name__ == '__main__':
 
     """
     For Question 1c) Box Muller method can be found in 7.3.4 of the book. Does not seem to be anywhere in the slides.
+    Are we allowed to use np.cos and np.sin and np.log? Seed and state need to be updated properly, because getting the same RNG number lists gives the wrong results.
+    Furthermore the transformations we used below only work for getting a gaussian distribution with mu=0 and sigma=1. We need to figure out how to transform properly
+    so we can get any specific form for the gaussian. Also change the graph to what they ask for.
     """
+
+    u1, u2 = np.array(RNG(1000)), np.array(RNG(1000))
+    theta = 2*np.pi*u1
+    r = (-2*np.log(u2))**0.5
+    x = r*np.cos(theta)
+    y = r*np.sin(theta)
+    
+    fig3, axs3 = plt.subplots(1,2, sharey=True)
+
+    axs3[0].hist(u1, bins=100)
+    axs3[1].hist(x, bins=100)
+    axs3[0].set(xlabel='u1', ylabel='count')
+    axs3[1].set(xlabel='x', ylabel='count')
+
+    fig3.savefig('./plots/histogram-gaussian-distribution')
 
     """
     For Question 1d) look at the details of lecture 8.
     """
+    u1d, u2d = np.array(RNG(1000)), np.array(RNG(1000))
+    thetad = 2*np.pi*u1
+    rd = (-2*np.log(u2))**0.5
+    xd = r*np.cos(theta)
+    yd = r*np.sin(theta)
+    
